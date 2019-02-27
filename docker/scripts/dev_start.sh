@@ -17,10 +17,10 @@
 ###############################################################################
 
 INCHINA="no"
-LOCAL_IMAGE="no"
+LOCAL_IMAGE="yes"
 VERSION=""
 ARCH=$(uname -m)
-VERSION_X86_64="dev-x86_64-20190307_1502"
+VERSION_X86_64="latest"
 VERSION_AARCH64="dev-aarch64-20170927_1111"
 VERSION_OPT=""
 
@@ -197,12 +197,12 @@ if [ "$INCHINA" == "yes" ]; then
     DOCKER_REPO=registry.docker-cn.com/apolloauto/apollo
 fi
 
-if [ "$LOCAL_IMAGE" == "yes" ] && [ -z "$VERSION_OPT" ]; then
-    VERSION="local_dev"
-fi
+#if [ "$LOCAL_IMAGE" == "yes" ] && [ -z "$VERSION_OPT" ]; then
+#    VERSION="local_dev"
+#fi
 
 
-IMG=${DOCKER_REPO}:$VERSION
+IMG=lgsvl/apollo-3.5:${VERSION}
 
 function local_volumes() {
     # Apollo root and bazel cache dirs are required.
