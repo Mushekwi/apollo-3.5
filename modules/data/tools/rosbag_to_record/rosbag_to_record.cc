@@ -24,6 +24,9 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <tf2_msgs/TFMessage.h>
 
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/CompressedImage.h>
+
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -110,6 +113,39 @@ int convert_PointCloud(std::shared_ptr<apollo::drivers::PointCloud> proto,
 
   return 1;
 }
+
+
+int convert_Image(std::shared_ptr<apollo::drivers::Image> proto,
+                       sensor_msgs::Image::ConstPtr rawdata) {
+  auto header = proto->mutable_header();
+  header->set_timestamp_sec(rawdata->header.stamp.toSec());
+  header->set_frame_id(rawdata->header.frame_id);
+  header->set_sequence_num(rawdata->header.seq);
+  proto->set_frame_id(rawdata->header.frame_id);
+  proto->set_measurement_time(rawdata->header.stamp.toSec());
+  proto->set_width(rawdata->width);
+  proto->set_height(rawdata->height);
+  proto->set_encoding(rawdata->encoding);
+
+  proto->set_data(rawdata->data.data(), rawdata->data.size());
+  return 1;
+}
+
+int convert_CompressedImage(std::shared_ptr<apollo::drivers::CompressedImage> proto,
+                       sensor_msgs::CompressedImage::ConstPtr rawdata) {
+  auto header = proto->mutable_header();
+  header->set_timestamp_sec(rawdata->header.stamp.toSec());
+  header->set_frame_id(rawdata->header.frame_id);
+  header->set_sequence_num(rawdata->header.seq);
+  proto->set_frame_id(rawdata->header.frame_id);
+  proto->set_measurement_time(rawdata->header.stamp.toSec());
+  proto->set_format(rawdata->format);
+
+  proto->set_data(rawdata->data.data(), rawdata->data.size());
+  return 1;
+
+}
+
 int main(int argc, char **argv) {
   if (argc != 3) {
     PrintUsage();
@@ -288,13 +324,84 @@ int main(int argc, char **argv) {
     } else if (channel_name == "/apollo/sensor/gnss/rtk_obs") {
       auto pb_msg = m.instantiate<apollo::drivers::gnss::EpochObservation>();
       pb_msg->SerializeToString(&serialized_str);
-    } else if (channel_name ==
+    }
+
+
+    else if (channel_name ==
+               "/apollo/sensor/camera/front_6mm/image") {
+      auto ros_msg = m.instantiate<sensor_msgs::Image>();
+      auto pb_msg = std::make_shared<apollo::drivers::Image>();
+      convert_Image(pb_msg, ros_msg);
+      pb_msg->SerializeToString(&serialized_str);
+    }
+    else if (channel_name ==
+               "/apollo/sensor/camera/front_12mm/image") {
+      auto ros_msg = m.instantiate<sensor_msgs::Image>();
+      auto pb_msg = std::make_shared<apollo::drivers::Image>();
+      convert_Image(pb_msg, ros_msg);
+      pb_msg->SerializeToString(&serialized_str);
+    }
+    else if (channel_name ==
+               "/apollo/sensor/camera/front_6mm/image/compressed") {
+      auto ros_msg = m.instantiate<sensor_msgs::CompressedImage>();
+      auto pb_msg = std::make_shared<apollo::drivers::CompressedImage>();
+      convert_CompressedImage(pb_msg, ros_msg);
+      pb_msg->SerializeToString(&serialized_str);
+    }
+   else if (channel_name ==
+               "/apollo/sensor/camera/front_12mm/image/compressed") {
+      auto ros_msg = m.instantiate<sensor_msgs::CompressedImage>();
+      auto pb_msg = std::make_shared<apollo::drivers::CompressedImage>();
+      convert_CompressedImage(pb_msg, ros_msg);
+      pb_msg->SerializeToString(&serialized_str);
+    }
+    else if (channel_name ==
+               "/apollo/sensor/camera/traffic/image_long/compressed") {
+      auto ros_msg = m.instantiate<sensor_msgs::CompressedImage>();
+      auto pb_msg = std::make_shared<apollo::drivers::CompressedImage>();
+      convert_CompressedImage(pb_msg, ros_msg);
+      pb_msg->SerializeToString(&serialized_str);
+    }
+
+    else if (channel_name ==
+               "/apollo/sensor/camera/traffic/image_short/compressed") {
+      auto ros_msg = m.instantiate<sensor_msgs::CompressedImage>();
+      auto pb_msg = std::make_shared<apollo::drivers::CompressedImage>();
+      convert_CompressedImage(pb_msg, ros_msg);
+      pb_msg->SerializeToString(&serialized_str);
+    }
+    else if (channel_name ==
+               "/apollo/sensor/camera/traffic/image_long") {
+      auto ros_msg = m.instantiate<sensor_msgs::Image>();
+      auto pb_msg = std::make_shared<apollo::drivers::Image>();
+      convert_Image(pb_msg, ros_msg);
+      pb_msg->SerializeToString(&serialized_str);
+    }
+
+    else if (channel_name ==
+               "/apollo/sensor/camera/traffic/image_short") {
+      auto ros_msg = m.instantiate<sensor_msgs::Image>();
+      auto pb_msg = std::make_shared<apollo::drivers::Image>();
+      convert_Image(pb_msg, ros_msg);
+      pb_msg->SerializeToString(&serialized_str);
+    }
+
+    else if (channel_name ==
                "/apollo/sensor/velodyne64/compensator/PointCloud2") {
       auto ros_msg = m.instantiate<sensor_msgs::PointCloud2>();
       auto pb_msg = std::make_shared<apollo::drivers::PointCloud>();
       convert_PointCloud(pb_msg, ros_msg);
       pb_msg->SerializeToString(&serialized_str);
-    } else {
+    }
+    else if (channel_name ==
+               "/apollo/sensor/velodyne128/compensator/PointCloud2") {
+      auto ros_msg = m.instantiate<sensor_msgs::PointCloud2>();
+      auto pb_msg = std::make_shared<apollo::drivers::PointCloud>();
+      convert_PointCloud(pb_msg, ros_msg);
+      pb_msg->SerializeToString(&serialized_str);
+    }
+
+    else {
       AWARN << "not support channel:" << channel_name;
       continue;
     }
