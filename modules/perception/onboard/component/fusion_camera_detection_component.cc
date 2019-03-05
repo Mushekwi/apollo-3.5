@@ -596,7 +596,6 @@ int FusionCameraDetectionComponent::InternalProc(
     return cyber::FAIL;
   }
 
-  AERROR << "-------------------------------------------" << camera_name;
   if (camera_name == "front_6mm") {
   // only visualize short camera
   uint8_t* data = const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in_message->data().data()) );
